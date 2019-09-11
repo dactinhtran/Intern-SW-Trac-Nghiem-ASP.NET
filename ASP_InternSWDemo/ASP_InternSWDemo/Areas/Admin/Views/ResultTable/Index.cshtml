@@ -1,0 +1,210 @@
+﻿@*@model PagedList.IPagedList<Models.ViewModels.UserScoreViewModel>*@
+@model List<Models.ViewModels.UserScoreViewModel>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Result";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section header{
+    Kết quả thi
+}
+@section jsFooter{
+    @*tim kiem theo toan bo du lieu trong table*@
+    @*<script>
+            $(document).ready(function () {
+                $("#myInput").on("keyup", function () {
+                    var value = $(this).val().toLowerCase();
+                    $("#myTable tr").filter(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                    });
+                });
+            });
+        </script>*@
+
+    <script src="/Assets/admin/js/controller/AdminController.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+
+    @*tim kiem theo du lieu cu the trong table(Name-td[0])*@
+    <script>
+        function myFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toLowerCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+
+    @*pieChart*@
+    <script>
+        var ctxP = document.getElementById("pieChart").getContext('2d');
+        var myPieChart = new Chart(ctxP, {
+            type: 'pie',
+            data: {
+                labels: ["Pass", "Fail",],
+                datasets: [{
+                    data: [@ViewBag.UserPass, (@ViewBag.CountUser-@ViewBag.UserPass)],
+                    backgroundColor: ["#F7464A","#4D5360"],
+                    hoverBackgroundColor: ["#FF5A5E", "#616774"]
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text : 'Biểu đồ thể hiện sự chênh lệch bài test pass/fail'
+                }
+            }
+        });
+    </script>
+
+    @*barChart*@
+    <script>
+        var ctxB = document.getElementById("barChart").getContext('2d');
+        var myBarChart = new Chart(ctxB, {
+            type: 'bar',
+            data: {
+                labels: ["Pass", "Fail"],
+                datasets: [{
+                    label: '% of Pass',
+                    data: [@ViewBag.PercentPass, @ViewBag.PercentFail],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(54, 162, 235, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ thể hiện % bài test pass/fail'
+                }
+            }
+        });
+    </script>
+
+    @*hidden chart if null*@
+    <script>
+        $(document).ready(function () {
+            if (@ViewBag.CountUser == 0) {
+                $('#pieChart').hide();
+                $('#barChart').hide();
+                $('#sp1').text('0%');
+                $('#sp2').text('0%');
+            }
+        });
+    </script>
+
+    @*datepicker boostrap(dateStart, dateFinish)*@
+    <script>
+        $('.datepicker').datepicker({
+            format: 'dd-mm-yyyy'
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Danh sách kết quả
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <p>Type something in the input field to search the table for first names, last names or emails:</p>
+                    <input class="form-control" id="myInput" type="text" placeholder="Search.." onkeyup="myFunction()">
+                    <br>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Điểm</th>
+                                <th>Chủ đề thi</th>
+                                <th>Ngày thi</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myTable">
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    @using (Html.BeginForm("DisplayScoreByUser", "ResultTable", FormMethod.Get))
+                                    {
+                                        <input type="hidden" name="userId" value="@item.userId" />
+                                        <td class="name"><button type="submit" class="btn btn-link">@item.Name</button></td>
+                                    }
+                                    <td>@item.Score</td>
+                                    <td>@item.TopicName</td>
+                                    <td>@item.TestDate</td>
+                                    <td>@item.Email</td>
+                                    <td>@item.Phone</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <p class="col-md-6">Tổng số bài test: <span style="font-style:italic">@ViewBag.CountUser</span> </p>
+                        <p class="col-md-6">
+                            Số bài test pass: <span style="font-style:italic"> @ViewBag.UserPass</span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="col-md-6">Phần trăm bài test pass: <span id="sp1">@ViewBag.PercentPass%</span></p>
+                        <p class="col-md-6">Phần trăm bài test fail: <span id="sp2">@ViewBag.PercentFail%</span></p>
+                    </div>
+                    @*@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))*@
+                    @using (Html.BeginForm("Submit", "ResultTable", FormMethod.Get))
+                    {
+                        <div class="fl-right">
+                            <label style="margin-left:100px;">Từ ngày: </label>
+                            <input autocomplete="off" name="dateStart"  class="datepicker" data-date-format="dd/mm/yyyy" />
+                            <label style="margin-left:20px;">Đến ngày: </label>
+                            <input autocomplete="off" name="dateFinish"  class="datepicker" data-date-format="dd/mm/yyyy" />
+                            <button type="submit" class="btn btn-success" style="margin-left:50px;">Thống kê</button>
+                        </div>
+                    }
+                        
+                    <br />
+                    <div>
+                        <div class="col-md-3">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                        <div class="col-md-7">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+
+</div>

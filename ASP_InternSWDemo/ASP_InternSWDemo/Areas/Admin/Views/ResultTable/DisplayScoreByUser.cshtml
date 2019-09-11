@@ -1,0 +1,57 @@
+﻿@model Models.ViewModels.UserScoreViewModel
+@{
+    ViewBag.Title = "DisplayScoreByUser";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section header{
+    Thông tin chi tiết
+}
+@section jsFooter{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script>
+
+        var ctxL = document.getElementById("lineChart").getContext('2d');
+        var arr = @Html.Raw(Json.Encode(ViewData["ListScore"]));
+        var arrIndex =[];
+        var i = 0;
+        for (i = 0; i < Object.keys(arr).length; i++) {
+            arrIndex.push(i+1);
+        }
+        var myLineChart = new Chart(ctxL, {
+            type: 'line',
+            data: {
+                labels: arrIndex,
+                datasets: [{
+                    label: "Score",
+                    data: arr,
+                    borderWidth: 2
+                }
+                ]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: "Biểu đồ thể hiện điểm của user qua từng lần test"
+                }
+            }
+        });
+    </script>
+}
+    <div class="col-md-6" style="margin-left:30px; font-size:20px">
+        <p>Họ và tên: @Model.Name</p>
+        <p>Email: @Model.Email</p>
+        <p>Phone: @Model.Phone</p>
+        <p>Số lần làm bài thi: @ViewBag.CountTest</p>
+        <br />
+    </div>
+
+
+        <div class="col-md-12">
+            <canvas id="lineChart"></canvas>
+        </div>
+
+
+
+
+

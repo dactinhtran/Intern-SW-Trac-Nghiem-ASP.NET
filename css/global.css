@@ -1,0 +1,17 @@
+.fl-left{
+    float: left;
+}
+.fl-right{
+    float: right;
+}
+.text-center{
+    text-align: center;
+}
+.text-right{
+    text-align: right;
+}
+.wp-inner{
+    width: 100%;
+    margin: 0px auto;
+}
+.alert-err{color:#a94442;background-color:#f2dede;border-color:#ebccd1;padding-left:15px;border:1px solid transparent;border-radius:4px}

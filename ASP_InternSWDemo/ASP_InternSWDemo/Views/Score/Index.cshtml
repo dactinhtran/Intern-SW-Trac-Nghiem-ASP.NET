@@ -1,0 +1,42 @@
+﻿@model Models.ViewModels.TestResultViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Trang điểm</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/Assets/css/reset.css">
+    <link rel="stylesheet" href="/Assets/css/global.css">
+    <link rel="stylesheet" href="/Assets/css/styleScore.css">
+</head>
+<body>
+    @using (Html.BeginForm("Submit", "Score", new { topicId = TempData["TopicId"] , userId = ViewBag.UserId} , FormMethod.Post))
+    {
+        <div id="title" class="text-center">
+            <h1>Kết quả</h1>
+        </div>
+        <div id="content" class="text-center">
+            <p id="fp1">Bạn đã trả lời đúng: @Model.CorrectAnswerNumber/@Model.TotalQuestion câu hỏi</p>
+            <p id="fp2">Số điểm đạt được: @Model.Score</p>
+        </div>
+        <div id="btn-btn" class="text-center">
+            <button type="submit" class="end-btn">
+                <strong>Xem chi tiết</strong>
+            </button>
+        </div>
+    }
+</body>
+</html>

@@ -1,0 +1,139 @@
+﻿@model List<Models.EF.Question>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Trắc nghiệm Online</title>
+    <link rel="shortcut icon" href="/Assets/img/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/Assets/css/reset.css">
+    <link rel="stylesheet" href="/Assets/css/global.css">
+    <link rel="stylesheet" href="/Assets/css/style-ifrques.css">
+    <link href="/Assets/css/style.css" rel="stylesheet" />
+    <script src="/Scripts/jquery-3.3.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            function getTimeRemaining(endtime) {
+                var t = Date.parse(endtime) - Date.parse(new Date());
+                var seconds = Math.floor((t / 1000) % 60);
+                var minutes = Math.floor((t / 1000 / 60) % 60);
+                return {
+                    'total': t,
+                    'minutes': minutes,
+                    'seconds': seconds
+                };
+            }
+            function initializeClock(id, endtime) {
+                var clock = document.getElementById(id);
+                var minutesSpan = clock.querySelector('.minutes');
+                var secondsSpan = clock.querySelector('.seconds');
+                function updateClock() {
+                    var t = getTimeRemaining(endtime);
+                    minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+                    secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+                    if (t.total <= 0) {
+                        clearInterval(timeinterval);
+                        alert("Hết thời gian làm bài!");
+                        $("#subform").submit();
+                    }
+                }
+                updateClock();
+                var timeinterval = setInterval(updateClock, 1000);
+            }
+            var deadline = new Date(Date.parse(new Date()) + 0.5 * 60 * 1000);
+            initializeClock('clockdiv', deadline);
+        });
+    </script>
+
+    @*block button*@
+    <script>
+        $(document).ready(function () {
+            $('.rad').change(function () {
+                var answersList = [];
+                //Loop over all questoins
+                $('.form-group').each(function () {
+                    var questionId = $(this).attr("id");
+                    var answer = $(".rad:checked", $(this)).val();
+                    //if Answer isnt provided do not update the answersList
+                    if (answer !== undefined) {
+                        answersList.push({
+                            question: questionId,
+                            answer: answer  
+                        });
+                    }
+                });
+                if (answersList.length == 10) {
+                    $("#sub").removeAttr("disabled");
+                }
+                else {
+                    $("#sub").attr('disabled', true);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="wrapper-ques">
+        <div id="content">
+            <div id="clockdiv">
+                <div>
+                    <span class="minutes"></span>
+                    <div class="smalltext">Minutes</div>
+                </div>
+                <div>
+                    <span class="seconds"></span>
+                    <div class="smalltext">Seconds</div>
+                </div>
+            </div>
+            @using (Html.BeginForm("Submit", "Question", new { topicId = TempData["TopicId"] }, FormMethod.Post, new { id = "subform" }))
+            {
+                int dem = 1; //order question
+                <input type="hidden" name="TopicId" value="@ViewBag.TopicId" />
+                for (int i = 0; i < Model.Count; i++)
+                { <div class="form-group" id="@dem">
+                        @*hien thi ten cau hoi*@
+                        @Html.LabelFor(model => Model[i].QuestionName, string.Format("Câu {0}: {1}", dem,
+                                            Model[i].QuestionName))
+                        @Html.Hidden(string.Format("[{0}].QuestionId", i), Model[i].QuestionId)
+                        @*Hidden:dai dien cho cau hoi*@
+                        @{var answers = Model[i].Answers.ToList(); }
+                        <div class="col-md-10">
+                            <ul>
+                                @for (var j = 0; j < answers.Count; j++)
+                                {
+                                    <li class="li-ques"
+                                        style="padding-left:55px; margin-bottom:3px;">
+                                        @*hien thi ds cac cau tra loi*@
+                                        @Html.RadioButton(string.Format("[{0}].FinalAnswerId", i), answers[j].AnswerId, new { @class = "rad" })
+                                        @answers[j].Answer1
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <br />
+                    dem++;
+                }
+                <div id="btn-btn">
+                    <button type="submit" id="sub" class="btn btn-primary" disabled>
+                        <strong>nộp bài</strong>
+                    </button>
+                </div>
+            }
+        </div>
+        <!--end wrapper-->
+    </div>
+</body>
+</html>

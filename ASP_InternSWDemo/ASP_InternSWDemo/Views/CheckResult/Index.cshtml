@@ -1,0 +1,73 @@
+﻿@model List<Models.ViewModels.QuestionResultItem>
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Trắc nghiệm Online</title>
+    <link rel="shortcut icon" href="~/Assets/img/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="~/Assets/css/reset.css">
+    <link rel="stylesheet" href="~/Assets/css/global.css">
+    <link rel="stylesheet" href="~/Assets/css/style-ifrques.css">
+    <link href="~/Assets/css/style.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
+    <script>
+    </script>
+</head>
+<body>
+    <div id="wrapper-ques">
+        <div id="content">
+            <h1 class="text-center" style="margin-bottom: 30px; text-transform:uppercase ">Các câu hỏi bạn đã chọn</h1>
+            @using (Html.BeginForm("", "", new { userId = ViewBag.UserId }, FormMethod.Post))
+            {
+                int dem = 1; //order question
+                <input type="hidden" name="UserId" value="@ViewBag.UserId" />
+                for (int i = 0; i < Model.Count; i++)
+                {
+                    <div class="form-group">
+                        @*hien thi ten cau hoi*@
+                        @Html.LabelFor(model => Model[i].QuestionName, string.Format("Câu {0}: {1}", dem,
+                                            Model[i].QuestionName))
+                        @Html.Hidden(string.Format("[{0}].QuestionId", i), Model[i].QuestionId)
+                        @*Hidden:dai dien cho cau hoi*@
+                        @{var answers = Model[i].Answers.ToList(); }
+                        <div class="col-md-10">
+                            <ul>
+                                @for (var j = 0; j < answers.Count; j++)
+                                {
+                                    var isUserAnswer = (answers[j].AnswerId == Model[i].AnswerId);
+                                    var isAnswerCorrect = (isUserAnswer && answers[j].IsCorrect);
+                                    <li class="li-ques"
+                                        style="padding-left:50px; margin-bottom:3px;">
+                                        @*hien thi ds cac cau tra loi*@
+                                        @Html.RadioButton(string.Format("[{0}].FinalAnswerId", i), answers[j].AnswerId, (answers[j].AnswerId == Model[i].AnswerId))
+                                        <span style="color:@(isAnswerCorrect?"Green": isUserAnswer ?"Red": !isAnswerCorrect && answers[j].IsCorrect?"Green":"Black")">
+                                            @answers[j].AnswerName
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <br />
+                    dem++;
+                }
+            }
+        </div>
+        <!--end wrapper-->
+    </div>
+</body>
+</html>
